@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 
 // Route to handle form submission
 app.post('/send', (req, res) => {
-    const { name, email, subject, message } = req.body;
+    const { date, patient_name, date_of_birth, patient_address, patient_phone, medical_conditions, reason_for_referral, special_requests, radiographs, referring_dentist, dentist_address, dentist_phone } = req.body;
 
     // Create a transporter
     const transporter = nodemailer.createTransport({
@@ -40,9 +40,9 @@ app.post('/send', (req, res) => {
     // Email options
     const mailOptions = {
         from: process.env.EMAIL, // Your email address from .env
-        to: 'info@fun-canada.com',
-        subject: 'Contact Form',
-        text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`
+        to: 'info@drgebril.com',
+        subject: 'Doctors Referral Form',
+        text: `Date: ${date}\nPatient Name: ${patient_name}\nDate Of Birth: ${date_of_birth}\nPatient Address: ${patient_address}\nPatient Phone: ${patient_phone}\nMedical Conditions: ${medical_conditions}\nReason for Referral: ${reason_for_referral}\nSpecial Requests: ${special_requests}\nRadiographs: ${radiographs}\nReferring Dentist Dr.: ${referring_dentist}\nDentist Address: ${dentist_address}\nDentist Phone: ${dentist_phone}`
     };
 
     // Send email
