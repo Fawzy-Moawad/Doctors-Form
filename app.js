@@ -26,6 +26,9 @@ app.use((req, res, next) => {
 app.post('/send', (req, res) => {
     const { date, patient_name, date_of_birth, patient_address, patient_phone, medical_conditions, reason_for_referral, special_requests, radiographs, referring_dentist, dentist_address, dentist_phone } = req.body;
 
+    // Format radiographs data
+    const radiographsFormatted = Array.isArray(radiographs) ? radiographs.join(', ') : 'No selection';
+
     // Create a transporter
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -42,7 +45,7 @@ app.post('/send', (req, res) => {
         from: process.env.EMAIL, // Your email address from .env
         to: 'info@drgebril.com',
         subject: 'Doctors Referral Form',
-        text: `Date: ${date}\nPatient Name: ${patient_name}\nDate Of Birth: ${date_of_birth}\nPatient Address: ${patient_address}\nPatient Phone: ${patient_phone}\nMedical Conditions: ${medical_conditions}\nReason for Referral: ${reason_for_referral}\nSpecial Requests: ${special_requests}\nRadiographs: ${radiographs}\nReferring Dentist Dr.: ${referring_dentist}\nDentist Address: ${dentist_address}\nDentist Phone: ${dentist_phone}`
+        text: `Date: ${date}\nPatient Name: ${patient_name}\nDate Of Birth: ${date_of_birth}\nPatient Address: ${patient_address}\nPatient Phone: ${patient_phone}\nMedical Conditions: ${medical_conditions}\nReason for Referral: ${reason_for_referral}\nSpecial Requests: ${special_requests}\nRadiographs: ${radiographsFormatted}\nReferring Dentist Dr.: ${referring_dentist}\nDentist Address: ${dentist_address}\nDentist Phone: ${dentist_phone}`
     };
 
     // Send email
