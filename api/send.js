@@ -1,21 +1,11 @@
 import nodemailer from "nodemailer";
 
-// Enable body parsing for HTML form POST (URL-encoded)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "1mb",
-    },
-  },
-};
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
   try {
-    // All fields from HTML <form> come here as plain text
     const {
       date,
       patient_name,
@@ -25,33 +15,29 @@ export default async function handler(req, res) {
       medical_conditions,
       reason_for_referral,
       special_requests,
+      radiographs,
       referring_dentist,
       dentist_address,
-      dentist_phone,
+      dentist_phone
     } = req.body;
 
-    // Radiographs come as radiographs[] → array OR string
-    let radiographs = req.body["radiographs[]"] || [];
-    if (!Array.isArray(radiographs)) radiographs = [radiographs];
-    const radiographsFormatted = radiographs.length
+    const radiographsFormatted = Array.isArray(radiographs)
       ? radiographs.join(", ")
       : "No selection";
 
-    // Create SMTP transporter for Hostinger
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST, // smtp.hostinger.com
-      port: Number(process.env.SMTP_PORT), // 465
-      secure: Number(process.env.SMTP_PORT) === 465, // SSL
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true, // 465 is secure
       auth: {
-        user: process.env.EMAIL, // info@drgebril.com
-        pass: process.env.PASSWORD, // Hostinger email password
-      },
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      }
     });
 
-    // Prepare email message
     await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: "info@drgebril.com",
+      from: process.env.FROM_EMAIL,
+      to: process.env.TO_EMAIL,
       subject: "Doctors Referral Form",
       text: `
 Date: ${date}
@@ -66,15 +52,13 @@ Radiographs: ${radiographsFormatted}
 Referring Dentist: ${referring_dentist}
 Dentist Address: ${dentist_address}
 Dentist Phone: ${dentist_phone}
-      `,
+      `
     });
 
     return res.status(200).json({ message: "Form sent successfully" });
+
   } catch (error) {
     console.error("Email Error:", error);
-    return res.status(500).json({
-      message: "Error sending email",
-      error: error.toString(),
-    });
+    return res.status(500).json({ message: "Error sending email", error });
   }
 }
