@@ -35,3 +35,40 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// Referral form handling
+document.addEventListener("DOMContentLoaded", function () {
+  const referralForm = document.getElementById("referralForm");
+  if (!referralForm) return; // safety check
+
+  referralForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); // stop default HTML form submit
+
+    const formData = new FormData(referralForm);
+    const data = Object.fromEntries(formData.entries());
+
+    // Collect checkbox values correctly
+    data.radiographs = formData.getAll("radiographs[]");
+
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Referral submitted successfully!");
+        referralForm.reset();
+      } else {
+        alert("Error: " + result.message);
+        console.error("Server Error:", result);
+      }
+
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      alert("Unexpected error occurred.");
+    }
+  });
+});
